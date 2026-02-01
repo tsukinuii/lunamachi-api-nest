@@ -13,9 +13,14 @@ export enum UserStatus {
   DELETED = 'deleted',
 }
 
+export enum UserRole {
+  USER = 'user',
+  STAFF = 'staff',
+  ADMIN = 'admin',
+}
+
 @Entity('users')
 @Unique(['email'])
-// @Unique(['username'])
 export class UserOrmEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
@@ -41,6 +46,13 @@ export class UserOrmEntity {
     default: UserStatus.ACTIVE,
   })
   status: UserStatus;
+
+  @Column({
+    type: 'enum',
+    enum: UserRole,
+    default: UserRole.USER,
+  })
+  role: UserRole;
 
   @CreateDateColumn({ type: 'timestamptz' })
   createdAt: Date;

@@ -31,6 +31,10 @@ export class EmailOtpOrmEntity {
   @Column({ type: 'int', default: 0 })
   resendCount: number;
 
+  // ส่ง OTP ครั้งสุดท้ายเมื่อไหร่
+  @Column({ type: 'timestamptz', nullable: true })
+  lastSentAt: Date | null;
+
   // ถ้าเดารัว ๆ ให้ล็อกชั่วคราวจนถึงเวลานี้
   @Column({ type: 'timestamptz', nullable: true })
   lockedUntil: Date | null;
