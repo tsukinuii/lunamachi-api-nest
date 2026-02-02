@@ -2,6 +2,7 @@ import {
   BadRequestException,
   Injectable,
   UnauthorizedException,
+  Logger,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository } from 'typeorm';
@@ -36,6 +37,8 @@ const OTP_TTL_MINUTES = 10; // OTP หมดอายุ 10 นาที
 
 @Injectable()
 export class AuthService {
+  private readonly logger = new Logger(AuthService.name);
+  
   constructor(
     private readonly dataSource: DataSource,
     private readonly mailService: MailService,
@@ -107,6 +110,7 @@ export class AuthService {
     const otpHash = await bcrypt.hash(otp, 10); // hash OTP
     const expiresAt = new Date(now.getTime() + OTP_TTL_MINUTES * 60 * 1000); // expires in 10 minutes
 
+    this.logger.log('request-otp start');
     // 5. ถ้ามี record เดิม : update fields
     if (existingOtp) {
       existingOtp.otpHash = otpHash;
@@ -119,6 +123,7 @@ export class AuthService {
       // save OTP on DB
       await this.otpOrmRepo.save(existingOtp);
     } else {
+      this.logger.log('before db save');
       // 6. ถ้าไม่มี record เดิม : create new record
       await this.otpOrmRepo.save({
         email,
@@ -129,10 +134,13 @@ export class AuthService {
         lockedUntil: null,
         lastSentAt: now,
       });
+      this.logger.log('after db save');
     }
 
     // 6. send OTP to email
+    this.logger.log('before send mail');
     await this.mailService.sendOtpMail(email, otp);
+    this.logger.log('after send mail');
     return { message: 'OTP ถูกส่งไปที่อีเมลแล้ว' };
   }
 
