@@ -16,15 +16,20 @@ export class MailService {
         user: this.configService.get<string>('MAIL_USER'),
         pass: this.configService.get<string>('MAIL_PASS'),
       },
-    })
+    });
   }
 
   async sendOtpMail(to: string, otp: string) {
-    await this.transporter.sendMail({
-      from: "LunaMachi <lunamachi@lunamachi.com>",
-      to,
-      subject: 'Your OTP',
-      text: `Your OTP is ${otp} (expires in 10 minutes)`,
-    })
+    try {
+      await this.transporter.sendMail({
+        from: 'LunaMachi <lunamachi@lunamachi.com>',
+        to,
+        subject: 'Your OTP',
+        text: `Your OTP is ${otp} (expires in 10 minutes)`,
+      });
+    } catch (error) {
+      console.error('Failed to send OTP email:', error);
+      throw error;
+    }
   }
 }
