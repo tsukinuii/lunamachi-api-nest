@@ -6,17 +6,12 @@ import {
   UpdateDateColumn,
   Unique,
 } from 'typeorm';
+import { UserRole } from '@/domain/auth/user-role';
 
 export enum UserStatus {
   ACTIVE = 'active',
   SUSPENDED = 'suspended',
   DELETED = 'deleted',
-}
-
-export enum UserRole {
-  USER = 'user',
-  STAFF = 'staff',
-  ADMIN = 'admin',
 }
 
 @Entity('users')

@@ -6,7 +6,7 @@ import {
   PrimaryGeneratedColumn,
   Unique,
 } from 'typeorm';
-import { UserRole } from './user.orm-entity';
+import { UserRole } from '@/domain/auth/user-role';
 
 export enum AuthProvider {
   GOOGLE = 'google',
