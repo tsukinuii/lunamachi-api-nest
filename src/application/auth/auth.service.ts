@@ -95,6 +95,8 @@ export class AuthService {
           existingOtp.lastSentAt.getTime() + OTP_RESEND_COOLDOWN_SECONDS * 1000,
         );
 
+        console.log('nextAllowed::', nextAllowed);
+        console.log('now::', now);
         // ถ้า nextAllowed > now throw error
         if (nextAllowed > now) {
           throw new BadRequestException({
@@ -107,7 +109,9 @@ export class AuthService {
 
     // 4. สร้าง OTP ใหม่
     const otp = randomInt(100000, 1000000).toString(); // 6 digits
+    console.log('otp::', otp);
     const otpHash = await bcrypt.hash(otp, 10); // hash OTP
+    console.log('otpHash::', otpHash);
     const expiresAt = new Date(now.getTime() + OTP_TTL_MINUTES * 60 * 1000); // expires in 10 minutes
 
     this.logger.log('request-otp start');
@@ -139,6 +143,7 @@ export class AuthService {
 
     // 6. send OTP to email
     this.logger.log('before send mail');
+    console.log('before send email::', email);
     await this.mailService.sendOtpMail(email, otp);
     this.logger.log('after send mail');
     return { message: 'OTP ถูกส่งไปที่อีเมลแล้ว' };
@@ -157,12 +162,14 @@ export class AuthService {
 
     // 1. ตรวจสอบ OTP
     const otpRecord = await this.otpOrmRepo.findOne({ where: { email } });
+    console.log('otpRecord::', otpRecord);
     // 1.1 ถ้าไม่พบ OTP throw error
-    if (!otpRecord)
+    if (!otpRecord) {
       throw new BadRequestException({
         code: ErrorCode.OTP_NOT_FOUND,
         message: 'ไม่พบ OTP',
       });
+    }
 
     const now = new Date();
 
@@ -183,6 +190,9 @@ export class AuthService {
 
     // 4. ตรวจสอบ OTP ถูกมั้ย
     const ok = await bcrypt.compare(otp, otpRecord.otpHash);
+    console.log('ok::', ok);
+    console.log('otp::', otp);
+    console.log('otpRecord.otpHash::', otpRecord.otpHash);
     // 4.1 ถ้า OTP ไม่ถูกต้อง
     if (!ok) {
       const nextAttempts = otpRecord.attempts + 1;
