@@ -38,7 +38,7 @@ const OTP_TTL_MINUTES = 10; // OTP หมดอายุ 10 นาที
 @Injectable()
 export class AuthService {
   private readonly logger = new Logger(AuthService.name);
-  
+
   constructor(
     private readonly dataSource: DataSource,
     private readonly mailService: MailService,
@@ -688,5 +688,23 @@ export class AuthService {
     });
 
     return await this.issueTokens({ id: userId, role: 'user' }, req, res);
+  }
+
+  // === Get Me ===
+  async getMe(userId: string) {
+    const user = await this.userOrmRepo.findOne({ where: { id: userId } });
+    if (!user) throw new UnauthorizedException('User not found');
+    
+    return {
+      id: user.id,
+      email: user.email,
+      username: user.username,
+      name: user.name,
+      lastname: user.lastname,
+      avatarUrl: user.avatarUrl,
+      status: user.status,
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt,
+    };
   }
 }

@@ -74,10 +74,10 @@ export class AuthController {
     return { message: 'admin ok' };
   }
 
-  // @UseGuards(JwtAuthGuard, ScopesGuard)
-  // @RequireScopes(Scopes.ORDERS_READ_ANY)
-  @Get('orders/all')
-  listAllOrders() {
-    return { ok: true };
+  @UseGuards(JwtAuthGuard)
+  @Get('me')
+  me(@Req() req: Request) {
+    const userId = (req.user as any).userId;
+    return this.authService.getMe(userId);
   }
 }
